@@ -1,5 +1,29 @@
 import os
 import pathlib
+import subprocess
+import sys
+import warnings
+from typing import Dict, Any, List
+
+# --- Critical Imports with Auto-Install ---
+try:
+    from transformers import AutoTokenizer, AutoModel
+except ImportError:
+    # Install before importing Streamlit to avoid spinner issues
+    subprocess.run([
+        sys.executable, 
+        "-m", 
+        "pip", 
+        "install", 
+        "--upgrade", 
+        "transformers", 
+        "torch",
+        "--quiet"
+    ], check=True)
+    from transformers import AutoTokenizer, AutoModel
+
+# Now safe to import Streamlit
+import streamlit as st
 from tokenizers.normalizers import BertNormalizer
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
@@ -7,14 +31,10 @@ from langchain_core.documents import Document
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
-from transformers import AutoTokenizer, AutoModel
 import ast
 import torch
-from typing import Dict, Any, List
 from bert_score import score as bert_score
 from rouge_score import rouge_scorer
-import warnings
-import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 
