@@ -1,29 +1,5 @@
 import os
 import pathlib
-import subprocess
-import sys
-import warnings
-from typing import Dict, Any, List
-
-# --- Critical Imports with Auto-Install ---
-try:
-    from transformers import AutoTokenizer, AutoModel
-except ImportError:
-    # Install before importing Streamlit to avoid spinner issues
-    subprocess.run([
-        sys.executable, 
-        "-m", 
-        "pip", 
-        "install", 
-        "--upgrade", 
-        "transformers", 
-        "torch",
-        "--quiet"
-    ], check=True)
-    from transformers import AutoTokenizer, AutoModel
-
-# Now safe to import Streamlit
-import streamlit as st
 from tokenizers.normalizers import BertNormalizer
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
@@ -31,10 +7,14 @@ from langchain_core.documents import Document
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
+from transformers import AutoTokenizer, AutoModel
 import ast
 import torch
+from typing import Dict, Any, List
 from bert_score import score as bert_score
 from rouge_score import rouge_scorer
+import warnings
+import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 
@@ -50,18 +30,24 @@ warnings.filterwarnings('ignore')
 # Set up Google API key
 os.environ["GOOGLE_API_KEY"] = st.secrets["google"]["GOOGLE_API_KEY"]
 
-# Initialize session state with minimal persistent storage
+def clear_session_state():
+    """Clear all session state variables except those needed for imports/config"""
+    keys_to_keep = ['GOOGLE_API_KEY', 'page']  # Preserve these keys
+    for key in list(st.session_state.keys()):
+        if key not in keys_to_keep:
+            del st.session_state[key]
+    # Reset to home page
+    st.session_state.page = 'home'
+
+# Initialize session state
 if 'page' not in st.session_state:
     st.session_state.page = 'home'
 if 'question' not in st.session_state:
     st.session_state.question = ''
-
-# Clear all other session state variables at the start of each question
-def clear_session_state():
-    keys_to_keep = ['page', 'question']
-    keys_to_remove = [key for key in st.session_state.keys() if key not in keys_to_keep]
-    for key in keys_to_remove:
-        del st.session_state[key]
+if 'results' not in st.session_state:
+    st.session_state.results = None
+if 'selected_context' not in st.session_state:
+    st.session_state.selected_context = None
 
 file_path = "vocab_mappings.txt"
 with open(file_path, 'r', encoding='utf-8') as f:
@@ -106,7 +92,6 @@ class State:
         self.context: List[Document] = []
         self.answer: str = ""
 
-@st.cache_resource
 def load_embeddings_from_csv(file_path: str):
     print(f"Loading embeddings from CSV file: {file_path}")
     df = pd.read_csv(file_path)
@@ -213,8 +198,6 @@ embeddings_df_matscibert, embeddings_df_bert = load_data()
 
 def ask_question(question: str):
     print(f"Asking question: {question}")
-    clear_session_state()  # Clear previous session data before processing new question
-    
     matscibert_result = workflow({"question": question}, embeddings_df_matscibert, model_name="matscibert")
     bert_result = workflow({"question": question}, embeddings_df_bert, model_name="bert")
 
@@ -226,8 +209,7 @@ def ask_question(question: str):
     bert_answer = bert_result["answer"]
     bert_scores = evaluate_answer(bert_answer, bert_context)
 
-    # Store results in session state
-    st.session_state.results = {
+    return {
         "matscibert": {
             "Context": matscibert_context,
             "Answer": matscibert_answer,
@@ -239,8 +221,6 @@ def ask_question(question: str):
             "Scores": bert_scores
         }
     }
-    
-    return st.session_state.results
 
 def create_bertscore_chart(scores: Dict[str, float]):
     metrics = ['Precision', 'Recall', 'F1']
@@ -362,7 +342,7 @@ def home_page():
         user_input = st.text_area(
             "Enter your question about alloys:", 
             key="user_input", 
-            value=st.session_state.question,
+            value="",  # Always start with empty input
             height=100,
             label_visibility="collapsed",
             placeholder="Ask your question here"
@@ -375,69 +355,68 @@ def home_page():
         )
     
     if submit_button and user_input:
+        clear_session_state()  # Clear previous state
         st.session_state.question = user_input
+        st.session_state.results = ask_question(user_input)
         st.session_state.page = 'results'
         st.rerun()
 
 def results_page():
     st.title("Search Results")
     
-    # Only process the question if we haven't already stored results
-    if 'results' not in st.session_state:
-        st.session_state.results = ask_question(st.session_state.question)
-    
-    results = st.session_state.results
-    
-    # First show answers in columns
-    st.subheader("Model Answers")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        with st.container(border=True):
-            st.markdown("### Matscibert Answer")
-            st.write(results["matscibert"]["Answer"])
-    
-    with col2:
-        with st.container(border=True):
-            st.markdown("### BERT Answer")
-            st.write(results["bert"]["Answer"])
-    
-    # Then show the comparison chart
-    st.subheader("Model Performance Comparison")
-    st.plotly_chart(
-        create_comparison_chart(results["matscibert"]["Scores"], results["bert"]["Scores"]),
-        use_container_width=True
-    )
-    
-    # Detailed metrics in tabs
-    st.subheader("Detailed Metrics")
-    tab1, tab2 = st.tabs(["Matscibert Metrics", "BERT Metrics"])
-    
-    with tab1:
+    if st.session_state.results:
+        results = st.session_state.results
+        
+        # First show answers in columns
+        st.subheader("Model Answers")
         col1, col2 = st.columns(2)
+        
         with col1:
-            st.plotly_chart(
-                create_bertscore_chart(results["matscibert"]["Scores"]["BERTScore"]),
-                use_container_width=True
-            )
+            with st.container(border=True):
+                st.markdown("### Matscibert Answer")
+                st.write(results["matscibert"]["Answer"])
+        
         with col2:
-            st.plotly_chart(
-                create_rouge_chart(results["matscibert"]["Scores"]["ROUGE"]),
-                use_container_width=True
-            )
-    
-    with tab2:
-        col1, col2 = st.columns(2)
-        with col1:
-            st.plotly_chart(
-                create_bertscore_chart(results["bert"]["Scores"]["BERTScore"]),
-                use_container_width=True
-            )
-        with col2:
-            st.plotly_chart(
-                create_rouge_chart(results["bert"]["Scores"]["ROUGE"]),
-                use_container_width=True
-            )
+            with st.container(border=True):
+                st.markdown("### BERT Answer")
+                st.write(results["bert"]["Answer"])
+        
+        # Then show the comparison chart
+        st.subheader("Model Performance Comparison")
+        st.plotly_chart(
+            create_comparison_chart(results["matscibert"]["Scores"], results["bert"]["Scores"]),
+            use_container_width=True
+        )
+        
+        # Detailed metrics in tabs
+        st.subheader("Detailed Metrics")
+        tab1, tab2 = st.tabs(["Matscibert Metrics", "BERT Metrics"])
+        
+        with tab1:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.plotly_chart(
+                    create_bertscore_chart(results["matscibert"]["Scores"]["BERTScore"]),
+                    use_container_width=True
+                )
+            with col2:
+                st.plotly_chart(
+                    create_rouge_chart(results["matscibert"]["Scores"]["ROUGE"]),
+                    use_container_width=True
+                )
+        
+        with tab2:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.plotly_chart(
+                    create_bertscore_chart(results["bert"]["Scores"]["BERTScore"]),
+                    use_container_width=True
+                )
+            with col2:
+                st.plotly_chart(
+                    create_rouge_chart(results["bert"]["Scores"]["ROUGE"]),
+                    use_container_width=True
+                )
     
     # Navigation buttons at the bottom
     st.markdown("---")
@@ -445,7 +424,6 @@ def results_page():
     with col1:
         if st.button("Start New Search", use_container_width=True):
             clear_session_state()
-            st.session_state.page = 'home'
             st.rerun()
     with col2:
         if st.button("View Context", use_container_width=True):
@@ -508,7 +486,6 @@ def context_view_page():
     with col2:
         if st.button("New Search", use_container_width=True):
             clear_session_state()
-            st.session_state.page = 'home'
             st.rerun()
 
 def main():
