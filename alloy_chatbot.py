@@ -30,15 +30,6 @@ warnings.filterwarnings('ignore')
 # Set up Google API key
 os.environ["GOOGLE_API_KEY"] = st.secrets["google"]["GOOGLE_API_KEY"]
 
-def clear_session_state():
-    """Clear all session state variables except those needed for imports/config"""
-    keys_to_keep = ['GOOGLE_API_KEY', 'page']  # Preserve these keys
-    for key in list(st.session_state.keys()):
-        if key not in keys_to_keep:
-            del st.session_state[key]
-    # Reset to home page
-    st.session_state.page = 'home'
-
 # Initialize session state
 if 'page' not in st.session_state:
     st.session_state.page = 'home'
@@ -342,7 +333,7 @@ def home_page():
         user_input = st.text_area(
             "Enter your question about alloys:", 
             key="user_input", 
-            value="",  # Always start with empty input
+            value=st.session_state.question,
             height=100,
             label_visibility="collapsed",
             placeholder="Ask your question here"
@@ -355,7 +346,6 @@ def home_page():
         )
     
     if submit_button and user_input:
-        clear_session_state()  # Clear previous state
         st.session_state.question = user_input
         st.session_state.results = ask_question(user_input)
         st.session_state.page = 'results'
@@ -423,7 +413,8 @@ def results_page():
     col1, col2 = st.columns([1, 1])
     with col1:
         if st.button("Start New Search", use_container_width=True):
-            clear_session_state()
+            st.session_state.page = 'home'
+            st.session_state.question = ''
             st.rerun()
     with col2:
         if st.button("View Context", use_container_width=True):
@@ -485,7 +476,8 @@ def context_view_page():
             st.rerun()
     with col2:
         if st.button("New Search", use_container_width=True):
-            clear_session_state()
+            st.session_state.page = 'home'
+            st.session_state.question = ''
             st.rerun()
 
 def main():
