@@ -30,7 +30,7 @@ The project follows these key steps:
 ## Live Demo
 
 Try the chatbot at: 
-Streamlit: [https://alloy-chatbot-qwsuv56mpnpnasulqzsnph.streamlit.app/](https://alloy-chatbot-qwsuv56mpnpnasulqzsnph.streamlit.app/)
+Streamlit: [Streamlit](https://alloy-chatbot-qwsuv56mpnpnasulqzsnph.streamlit.app/)
 
 ## Technical Architecture
 
