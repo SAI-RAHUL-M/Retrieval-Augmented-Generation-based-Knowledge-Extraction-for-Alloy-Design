@@ -32,27 +32,6 @@ The project follows these key steps:
 Try the chatbot at: 
 Streamlit: [Streamlit](https://alloy-chatbot-qwsuv56mpnpnasulqzsnph.streamlit.app/)
 
-## Technical Architecture
-
-```
-├── data/
-│   ├── raw/                  # Original research papers
-│   ├── processed/            # Extracted text in structured format
-│   └── embeddings/           # Generated vector embeddings
-│       ├── bert/             # Standard BERT embeddings
-│       └── matscibert/       # MatSciBERT domain-specific embeddings
-├── models/
-│   ├── matscibert/           # MatSciBERT model files
-│   └── bert/                 # BERT model files
-├── src/
-│   ├── data_extraction.py    # Scripts for extracting data from papers
-│   ├── embedding.py          # Code for generating embeddings
-│   ├── rag_system.py         # RAG implementation
-│   └── app.py                # Streamlit application
-├── requirements.txt          # Project dependencies
-└── README.md                 # Project documentation
-```
-
 ## RAG System Implementation
 
 The chatbot utilizes a Retrieval-Augmented Generation approach with these core components:
@@ -149,11 +128,12 @@ If you use this work in your research, please cite our system and the original r
 
 ## Project Contributors
 
-- Kritesh Kumar Gupta Sir
-- Ashwin Devan
-- M Sai Rahul
-- M Srinivasa Sai Kumar Reddy
-- Kurakula Prashanth
+- [Kritesh Kumar Gupta Sir](https://scholar.google.com/citations?user=T8qa1l4AAAAJ&hl=en)  
+- [Ashwin Devan](https://github.com/ashwindevan)  
+- [M Sai Rahul](https://github.com/SAI-RAHUL-M)  
+- [M Srinivasa Sai Kumar Reddy](https://github.com/Srinivasa-Sai-Kumar-Reddy)  
+- [Kurakula Prashanth](https://github.com/kurakula-prashanth)  
+
 
 ## Contact
 
