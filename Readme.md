@@ -149,7 +149,7 @@ If you use this work in your research, please cite our system and the original r
 
 ## Project Contributors
 
-- Kritesh Kumar Gupta
+- Kritesh Kumar Gupta Sir
 - Ashwin Devan
 - M Sai Rahul
 - M Srinivasa Sai Kumar Reddy
