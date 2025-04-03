@@ -134,6 +134,15 @@ If you use this work in your research, please cite our system and the original r
 - [M Srinivasa Sai Kumar Reddy](https://github.com/Srinivasa-Sai-Kumar-Reddy)  
 - [Kurakula Prashanth](https://github.com/kurakula-prashanth)  
 
+## Results
+
+- ![Home Page](https://github.com/user-attachments/assets/68cb859c-d87e-4903-a7eb-064450de9b51)
+- ![Search Results](https://github.com/user-attachments/assets/4bbf46e3-8c26-4f36-bc75-dc0cee35cd50)
+- ![MatSciBert Results](https://github.com/user-attachments/assets/b8efd221-61bf-4a35-9a5c-9227dbf4ee88)
+- ![Bert Embeddings Results](https://github.com/user-attachments/assets/3d22f675-886c-49a7-b304-764ab23b3ffc)
+- ![MatSciBert Context where answer generated](https://github.com/user-attachments/assets/4b87eeb6-8fb7-4174-aa64-54cfbbc914de)
+- ![Bert Context where answer generated](https://github.com/user-attachments/assets/7c15cf81-ac96-4960-a7f2-3b189d263d7a)
+
 
 ## Contact
 
