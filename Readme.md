@@ -128,7 +128,7 @@ If you use this work in your research, please cite our system and the original r
 
 ## Project Contributors
 
-- [Kritesh Kumar Gupta Sir](https://scholar.google.com/citations?user=T8qa1l4AAAAJ&hl=en)  
+- [Kritesh Kumar Gupta Sir This Project Guide](https://scholar.google.com/citations?user=T8qa1l4AAAAJ&hl=en)  
 - [Ashwin Devan](https://github.com/ashwindevan)  
 - [M Sai Rahul](https://github.com/SAI-RAHUL-M)  
 - [M Srinivasa Sai Kumar Reddy](https://github.com/Srinivasa-Sai-Kumar-Reddy)  
