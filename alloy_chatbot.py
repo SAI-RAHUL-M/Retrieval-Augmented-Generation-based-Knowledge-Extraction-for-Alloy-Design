@@ -101,8 +101,8 @@ def generate_query_embedding(query_text: str, model_name: str):
 
 def generate_matscibert_embedding(query_text: str):
     print("Generating Matscibert embedding...")
-    tokenizer = AutoTokenizer.from_pretrained('m3rg-iitd/matscibert', local_files_only=False)
-    model = AutoModel.from_pretrained('m3rg-iitd/matscibert', local_files_only=False)
+    tokenizer = AutoTokenizer.from_pretrained('m3rg-iitd/matscibert')
+    model = AutoModel.from_pretrained('m3rg-iitd/matscibert')
 
     norm_sents = [normalize(query_text)]
     tokenized_sents = tokenizer(norm_sents, padding=True, truncation=True, return_tensors='pt')
@@ -116,8 +116,8 @@ def generate_matscibert_embedding(query_text: str):
 
 def generate_bert_embedding(query_text: str):
     print("Generating BERT embedding...")
-    tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased', local_files_only=False)
-    model = AutoModel.from_pretrained("bert-base-uncased", local_files_only=False)
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
+    model = AutoModel.from_pretrained("bert-base-uncased")
 
     encoded_input = tokenizer(query_text, return_tensors='pt', truncation=True, padding=True)
     with torch.no_grad():
@@ -126,7 +126,6 @@ def generate_bert_embedding(query_text: str):
     sentence_embedding = output.last_hidden_state.mean(dim=1).squeeze().numpy()
     print("BERT embedding generated.")
     return sentence_embedding
-
 
 def retrieve(state: State, embeddings_df: pd.DataFrame, model_name: str):
     print("Retrieving relevant documents...")
@@ -466,7 +465,7 @@ def context_view_page():
     if st.session_state.results and st.session_state.selected_context:
         context = st.session_state.results[st.session_state.selected_context]["Context"]
         with st.container(height=600, border=True):
-            st.markdown(f"```\n{context}\n```")
+            st.markdown(f"\n{context}\n")
     
     # Navigation buttons at bottom
     st.markdown("---")
