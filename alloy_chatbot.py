@@ -101,18 +101,24 @@ def generate_query_embedding(query_text: str, model_name: str):
 
 def generate_matscibert_embedding(query_text: str):
     print("Generating Matscibert embedding...")
-    tokenizer = AutoTokenizer.from_pretrained('m3rg-iitd/matscibert')
-    model = AutoModel.from_pretrained('m3rg-iitd/matscibert')
+    try:
+        tokenizer = AutoTokenizer.from_pretrained('m3rg-iitd/matscibert', local_files_only=False)
+        model = AutoModel.from_pretrained('m3rg-iitd/matscibert', local_files_only=False)
+        
+        norm_sents = [normalize(query_text)]
+        tokenized_sents = tokenizer(norm_sents, padding=True, truncation=True, return_tensors='pt')
 
-    norm_sents = [normalize(query_text)]
-    tokenized_sents = tokenizer(norm_sents, padding=True, truncation=True, return_tensors='pt')
+        with torch.no_grad():
+            last_hidden_state = model(**tokenized_sents).last_hidden_state
 
-    with torch.no_grad():
-        last_hidden_state = model(**tokenized_sents).last_hidden_state
-
-    sentence_embedding = last_hidden_state.mean(dim=1).squeeze().numpy()
-    print("Matscibert embedding generated.")
-    return sentence_embedding
+        sentence_embedding = last_hidden_state.mean(dim=1).squeeze().numpy()
+        print("Matscibert embedding generated.")
+        return sentence_embedding
+    except Exception as e:
+        print(f"Error loading MatSciBERT: {e}")
+        print("Falling back to BERT model...")
+        # Fallback to BERT if MatSciBERT fails
+        return generate_bert_embedding(query_text)
 
 def generate_bert_embedding(query_text: str):
     print("Generating BERT embedding...")
