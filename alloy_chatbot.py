@@ -122,16 +122,22 @@ def generate_matscibert_embedding(query_text: str):
 
 def generate_bert_embedding(query_text: str):
     print("Generating BERT embedding...")
-    tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
-    model = AutoModel.from_pretrained("bert-base-uncased")
+    try:
+        tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased', local_files_only=False)
+        model = AutoModel.from_pretrained("bert-base-uncased", local_files_only=False)
 
-    encoded_input = tokenizer(query_text, return_tensors='pt', truncation=True, padding=True)
-    with torch.no_grad():
-        output = model(**encoded_input)
+        norm_sents = [normalize(query_text)]
+        tokenized_sents = tokenizer(norm_sents, padding=True, truncation=True, return_tensors='pt')
 
-    sentence_embedding = output.last_hidden_state.mean(dim=1).squeeze().numpy()
-    print("BERT embedding generated.")
-    return sentence_embedding
+        with torch.no_grad():
+            output = model(**tokenized_sents)
+
+        sentence_embedding = output.last_hidden_state.mean(dim=1).squeeze().numpy()
+        print("BERT embedding generated.")
+        return sentence_embedding
+    except Exception as e:
+        print(f"Error generating BERT embedding: {e}")
+        return None
 
 def retrieve(state: State, embeddings_df: pd.DataFrame, model_name: str):
     print("Retrieving relevant documents...")
