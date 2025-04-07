@@ -126,11 +126,9 @@ def generate_bert_embedding(query_text: str):
         tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased', local_files_only=False)
         model = AutoModel.from_pretrained("bert-base-uncased", local_files_only=False)
 
-        norm_sents = [normalize(query_text)]
-        tokenized_sents = tokenizer(norm_sents, padding=True, truncation=True, return_tensors='pt')
-
+        encoded_input = tokenizer(query_text, return_tensors='pt', truncation=True, padding=True)
         with torch.no_grad():
-            output = model(**tokenized_sents)
+            output = model(**encoded_input)
 
         sentence_embedding = output.last_hidden_state.mean(dim=1).squeeze().numpy()
         print("BERT embedding generated.")
