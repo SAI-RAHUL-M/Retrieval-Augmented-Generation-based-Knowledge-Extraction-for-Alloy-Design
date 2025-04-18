@@ -156,6 +156,12 @@ Here are the various results of the system:
 ## Bert Context where answer generated
 ![Bert Context where answer generated](https://github.com/user-attachments/assets/7c15cf81-ac96-4960-a7f2-3b189d263d7a)
 
+## Reference
+Wei Cheng, Lingfei Ji, Litian Zhang, Hao Wang, Weigao Sun,
+Refractory high-entropy alloys fabricated using laser technologies: a concrete review,
+Journal of Materials Research and Technology, Volume 24, 2023, Pages 7497-7524, ISSN 2238-7854,
+https://doi.org/10.1016/j.jmrt.2023.05.037.
+(https://www.sciencedirect.com/science/article/pii/S2238785423010025)
 
 ## Contact
 
